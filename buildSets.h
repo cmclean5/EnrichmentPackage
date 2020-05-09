@@ -69,7 +69,8 @@ class buildSets {
 
  public:
    buildSets();
-   void addSets(const char *[], int );
+   //void addSets(const char *[], int );
+   void addSets(vector<string>, int );
   ~buildSets();
 
   void readAnnotationFile (const char *); 

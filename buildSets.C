@@ -33,7 +33,8 @@ buildSets::buildSets() {
   
 }
 
-void buildSets::addSets( const char *INfiles[], int Nfiles ) {
+//void buildSets::addSets( const char *INfiles[], int Nfiles ) {
+void buildSets::addSets( vector<string> INfiles, int Nfiles ) {
  
   int i,j,k,nlines,Ff;
   
@@ -62,7 +63,7 @@ void buildSets::addSets( const char *INfiles[], int Nfiles ) {
   //cout << "Nfiles: " << Nfiles << endl;
   for( i=0; i<Nfiles; i++ ){
     cout << "reading " << INfiles[i] << endl;
-    this->files.push_back(new fileReader((FILE*)fopen(INfiles[i],"r")));
+    this->files.push_back(new fileReader((FILE*)fopen(INfiles[i].c_str(),"r")));
   }
  
   //fill space with input files
