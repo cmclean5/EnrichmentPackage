@@ -191,12 +191,13 @@ NetworkEnrichment::NetworkEnrichment( vector<string> INfiles ) : buildSets() {
 
   for( i=0; i<OVERLAPSIZE; i++ ){ this->MINOVERLAP[i]=0; }
    
-  for(i=0; i<infilesSIZE; i++)  { files[i] = INfiles[i].c_str(); }
+  //for(i=0; i<infilesSIZE; i++)  { files[i] = INfiles[i].c_str(); }
   
-  vector<string>().swap(INfiles);//free space of vector
+  //vector<string>().swap(INfiles);//free space of vector
 
   //build our annotation sets
-  addSets(files,infilesSIZE);  
+  //addSets(files,infilesSIZE);
+  addSets(INfiles,infilesSIZE);  
 
   //printList( Clist, Clines);
     
