@@ -592,7 +592,7 @@ void NetworkEnrichment::calculateInteractionDistance( int muab, int N, int Cn, i
 }
 
 // store all (a,b) pairs which give muab, from i=0 to i=muab. 
-void NetworkEnrichment::calculateSampleSapce( int muab, int a, int b, vector<tripleInt> &d ){
+void NetworkEnrichment::calculateSampleSpace( int muab, int a, int b, vector<tripleInt> &d ){
   
   int i,j, relD;
 
@@ -1823,7 +1823,7 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	  if( (comSIZE[m] > MINOVERLAP[0] ) && (overlap[(a*Bs)+b] > MINOVERLAP[1]) && (tally > MINOVERLAP[2]) ){ 
 
 	    // set sample size to calculate the test statistic, mu, against...
-	    // the 'standard' size uses the union and sizes of A and B in the
+	    // the 'standard' size using the union and sizes of A and B in the
 	    // network.
 	    maxMU = overlap[(a*Bs)+b];
 	    maxA  = A;
@@ -1833,8 +1833,8 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	    if( maxA  > comSIZE[m] ){ maxA  = comSIZE[m]; }	  
 	    if( maxB  > comSIZE[m] ){ maxB  = comSIZE[m]; }
 	  
-	    // if useMaxSS set, we'll uses the bigger of either the community size,
-	    // or of  the union and sizes of A and B in the network.
+	    // if useMaxSS set, we'll use the bigger of either the community size,
+	    // or the union of sizes A and B in the network.
 	    if( useMaxSS ){
 	  
 	      maxMU = comSIZE[m];
@@ -1848,7 +1848,7 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	    } 
 
 	    vector<tripleInt> S;
-	    calculateSampleSapce( maxMU, maxA, maxB, S );
+	    calculateSampleSpace( maxMU, maxA, maxB, S );
 	    //----
 	  
 	    p_value   = 0;
