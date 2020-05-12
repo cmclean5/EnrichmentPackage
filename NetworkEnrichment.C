@@ -1822,6 +1822,7 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	
 	  if( (comSIZE[m] > MINOVERLAP[0] ) && (overlap[(a*Bs)+b] > MINOVERLAP[1]) && (tally > MINOVERLAP[2]) ){ 
 
+	    /*
 	    // set sample size to calculate the test statistic, mu, against...
 	    // the 'standard' size using the union and sizes of A and B in the
 	    // network.
@@ -1846,52 +1847,61 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	      if( B > maxB )                 { maxB  = B;                 }
 
 	    } 
-
+	    */	  
+	    
 	    vector<tripleInt> S;
-	    calculateSampleSpace( maxMU, maxA, maxB, S );
+	    calculateSampleSpace( tally, tally_na, tally_nb, S );
 	    //----
-	  
+	    
+
 	    p_value   = 0;
 	    p_valueD  = 0;
 	    mu        = 0;
 	    prob_A    = prob_overlap( (int)N, (int)comSIZE[m], (int)A, (int)tally_na );
 	    prob_B    = prob_overlap( (int)N, (int)comSIZE[m], (int)B, (int)tally_nb );
-
 	    mu        = prob_overlap( (int)N, (int)comSIZE[m], (int)overlap[(a*Bs)+b], (int)tally );
-	    mu       *= (prob_A * prob_B);
+	    //mu       *= (prob_A * prob_B);
+	    mu        = mu * ((prob_A + prob_B)/2);
 
-	    /*
+	    
+	    	    
+	    
 	    if( calRelDist ){
-	    double prob_RD = 0.0;
-	    int    relDist = 0;
+	      double prob_RD = 0.0;
+	      int    relDist = 0;
 	    
-	    calculateInteractionDistance( (int)overlap[(a*Bs)+b], (int)N, (int)comSIZE[m], (int)A, (int)tally_na, (int)B, (int)tally_nb, relDist, prob_RD );
-
-	    p_dist[(k*M)+m]  = prob_RD;
-	    reldist[(k*M)+m] = relDist;
+	      calculateInteractionDistance( (int)overlap[(a*Bs)+b], (int)N, (int)comSIZE[m], (int)A, (int)tally_na, (int)B, (int)tally_nb, relDist, prob_RD );
+	      	    
+	      p_dist[(k*M)+m]  = prob_RD;
+	      reldist[(k*M)+m] = relDist;
 	    }
-	    */
-
-	    for(i=0; i<S.size(); i++ ){
-	      
-	      prob_A       = prob_overlap( (int)N, (int)comSIZE[m], (int)maxA,  (int)std::get<1>(S[i]) );
-	      prob_B       = prob_overlap( (int)N, (int)comSIZE[m], (int)maxB,  (int)std::get<2>(S[i]) );
-	      double prob  = prob_overlap( (int)N, (int)comSIZE[m], (int)maxMU, (int)std::get<0>(S[i]) );
 	    
-	      prob *= (prob_A * prob_B);
+	    for(i=0; i<S.size(); i++ ){
 
-	      //Enrichment
-	      if( (prob <= mu) ){
-		p_value   += prob;
+	      //prob_A       = prob_overlap( (int)N, (int)comSIZE[m], (int)maxA,  (int)std::get<1>(S[i]) );
+	      //prob_B       = prob_overlap( (int)N, (int)comSIZE[m], (int)maxB,  (int)std::get<2>(S[i]) );
+	      //double prob  = prob_overlap( (int)N, (int)comSIZE[m], (int)maxMU, (int)std::get<0>(S[i]) );
+	      //prob *= (prob_A * prob_B);
+
+	      prob_A       = prob_overlap( (int)N, (int)comSIZE[m], (int)A,                 (int)std::get<1>(S[i]) );
+	      prob_B       = prob_overlap( (int)N, (int)comSIZE[m], (int)B,                 (int)std::get<2>(S[i]) );
+	      double prob  = prob_overlap( (int)N, (int)comSIZE[m], (int)overlap[(a*Bs)+b], (int)std::get<0>(S[i]) );	     
+	      //prob        *= (prob_A * prob_B);
+	      prob         = prob * ((prob_A + prob_B)/2);
+
+	      if( (int)std::get<0>(S[i])<=tally    &&
+		  (int)std::get<1>(S[i])<=tally_na &&
+		  (int)std::get<2>(S[i])<=tally_nb ){
+
+		//Enrichment	
+		if( prob <= mu ) p_value  += prob;
+
+		//Depletion	
+		if( prob >= mu ) p_valueD += prob;
 	      }
-
-	      //Depletion
-	      if( (prob >= mu) ){
-		p_valueD  += prob;
-	      }
-
-	    } 
-	 
+		
+	    }
+	     	   
 	  
 	    //if useRCfisher or useChi2,
 	    if( useRCfisher || useChi2 ){
