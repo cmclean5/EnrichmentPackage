@@ -1835,9 +1835,7 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	int tally_na     = 0;
 	int tally_nb     = 0;
 	  
-	int maxMU        = 0;
-	int maxA         = 0;
-	int maxB         = 0;
+	int maxMU        = 0;	
 	
 	  //--- loop over all genes in the mth cluster which shares the fth Disease type
 	  for(i=0; i<N; i++){
@@ -1887,28 +1885,34 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 				      (int)overlap[(a*Bs+b)], (int)tally );	   
    
 
+	    maxMU = tally;
 	    vector<tripleInt> S;
-	    if( useMaxSS ){ calculateSampleSpace( comSIZE[m], comSIZE[m], comSIZE[m], S ); }
+	    if( useMaxSS ){ maxMU = comSIZE[m]; calculateSampleSpace( maxMU, maxMU, maxMU, S ); }
 	    else { calculateSampleSpace( tally, tally_na, tally_nb, S ); }
 
 
 	    for(i=0; i<S.size(); i++ ){	    
 	      
 	      
-	      double prob =  prob_overlap( (int)N, (int)comSIZE[m],
-					   (int)A, (int)std::get<1>(S[i]),
-					   (int)B, (int)std::get<2>(S[i]),
-					   (int)overlap[(a*Bs+b)], (int)std::get<0>(S[i]));
+	      if( ( (int)std::get<0>(S[i]) <= tally) ||
+		  ( (int)std::get<0>(S[i]) >= (maxMU-tally) ) ){  
+	      
+		double prob =  prob_overlap( (int)N, (int)comSIZE[m],
+					     (int)A, (int)std::get<1>(S[i]),
+					     (int)B, (int)std::get<2>(S[i]),
+					     (int)overlap[(a*Bs+b)], (int)std::get<0>(S[i]));
 
 		
-	      //double SMALL=1.0e-100;
-	      //if( prob <= SMALL ) prob = SMALL;
-		
-	      //Enrichment <=	
-	      if( prob <= mu ) p_value  += prob; 
+		//double SMALL=1.0e-100;
+		//if( prob <= SMALL ) prob = SMALL;
 
-	      //Depletion >=	
-	      if( prob >= mu ) p_valueD += prob; 
+		//Enrichment <=	
+		if( prob <= mu ) p_value  += prob; 
+
+		//Depletion >=	
+		if( prob >= mu ) p_valueD += prob; 
+
+	      }
 
 	    }
 
