@@ -1867,17 +1867,6 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	
 	  if( (comSIZE[m] > MINOVERLAP[0] ) && (overlap[(a*Bs)+b] > MINOVERLAP[1]) && (tally > MINOVERLAP[2]) ){ 	    
 
-	    vector<tripleInt> S;
-	    calculateSampleSpace( comSIZE[m], comSIZE[m], comSIZE[m], S );
-	    
-	    p_value   = 0;
-	    p_valueD  = 0;
-	    mu        = 0;	   
-	    mu        = prob_overlap( (int)N, (int)comSIZE[m],
-				      (int)A, (int)tally_na,
-				      (int)B, (int)tally_nb,
-				      (int)overlap[(a*Bs+b)], (int)tally );
-
 	    if( calRelDist ){
 	      double prob_RD = 0.0;
 	      int    relDist = 0;
@@ -1888,23 +1877,42 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	      reldist[(k*M)+m] = relDist;
 	    }
 
-	    for(i=0; i<S.size(); i++ ){	    
+	    
+	    p_value   = 0;
+	    p_valueD  = 0;
+	    mu        = 0;	   
+	    mu        = prob_overlap( (int)N, (int)comSIZE[m],
+				      (int)A, (int)tally_na,
+				      (int)B, (int)tally_nb,
+				      (int)overlap[(a*Bs+b)], (int)tally );
+
+	    if( maxSS ){
+
+	      vector<tripleInt> S;
+	      calculateSampleSpace( comSIZE[m], comSIZE[m], comSIZE[m], S );
+	    
+
+	      for(i=0; i<S.size(); i++ ){	    
 	      
 	      
-	      double prob =  prob_overlap( (int)N, (int)comSIZE[m],
-					   (int)A, (int)std::get<1>(S[i]),
-					   (int)B, (int)std::get<2>(S[i]),
-					   (int)overlap[(a*Bs+b)], (int)std::get<0>(S[i]));
+		double prob =  prob_overlap( (int)N, (int)comSIZE[m],
+					     (int)A, (int)std::get<1>(S[i]),
+					     (int)B, (int)std::get<2>(S[i]),
+					     (int)overlap[(a*Bs+b)], (int)std::get<0>(S[i]));
 
 
-	    //Enrichment	
-	    if( prob <= mu ) p_value  += prob; 
+		//Enrichment	
+		if( prob <= mu ) p_value  += prob; 
 
-	    //Depletion	
-	    if( prob >= mu ) p_valueD += prob; 
+		//Depletion	
+		if( prob >= mu ) p_valueD += prob; 
 
+	      }
+
+	    } else {
+	      p_value = mu;
 	    }
-	      
+	    
 	  
 	    //if useRCfisher or useChi2,
 	    if( useRCfisher || useChi2 ){
