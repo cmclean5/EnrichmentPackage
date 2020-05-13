@@ -606,10 +606,10 @@ void NetworkEnrichment::calculateSampleSpace( int muab, int a, int b, vector<tri
   
     for(i=0; i<=a; i++){
       for(j=0; j<=b; j++){
-	if( (i+j) == relD ){
+	//if( (i+j) == relD ){
 	  d.push_back( tripleInt(relD, i, j) );
-	  d.push_back( tripleInt(relD, j, i) );
-	}
+	  //d.push_back( tripleInt(relD, j, i) );
+	  //}
       }
     }
 
@@ -1884,36 +1884,35 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	    mu        = prob_overlap( (int)N, (int)comSIZE[m],
 				      (int)A, (int)tally_na,
 				      (int)B, (int)tally_nb,
-				      (int)overlap[(a*Bs+b)], (int)tally );
+				      (int)overlap[(a*Bs+b)], (int)tally );	   
+   
 
-	    if( maxSS ){
+	    vector<tripleInt> S;
+	    if( useMaxSS ){ calculateSampleSpace( comSIZE[m], comSIZE[m], comSIZE[m], S ); }
+	    else { calculateSampleSpace( tally, tally_na, tally_nb, S ); }
 
-	      vector<tripleInt> S;
-	      calculateSampleSpace( comSIZE[m], comSIZE[m], comSIZE[m], S );
-	    
 
-	      for(i=0; i<S.size(); i++ ){	    
+	    for(i=0; i<S.size(); i++ ){	    
 	      
 	      
-		double prob =  prob_overlap( (int)N, (int)comSIZE[m],
-					     (int)A, (int)std::get<1>(S[i]),
-					     (int)B, (int)std::get<2>(S[i]),
-					     (int)overlap[(a*Bs+b)], (int)std::get<0>(S[i]));
+	      double prob =  prob_overlap( (int)N, (int)comSIZE[m],
+					   (int)A, (int)std::get<1>(S[i]),
+					   (int)B, (int)std::get<2>(S[i]),
+					   (int)overlap[(a*Bs+b)], (int)std::get<0>(S[i]));
 
+		
+	      //double SMALL=1.0e-100;
+	      //if( prob <= SMALL ) prob = SMALL;
+		
+	      //Enrichment <=	
+	      if( prob <= mu ) p_value  += prob; 
 
-		//Enrichment	
-		if( prob <= mu ) p_value  += prob; 
+	      //Depletion >=	
+	      if( prob >= mu ) p_valueD += prob; 
 
-		//Depletion	
-		if( prob >= mu ) p_valueD += prob; 
-
-	      }
-
-	    } else {
-	      p_value = mu;
 	    }
-	    
-	  
+
+
 	    //if useRCfisher or useChi2,
 	    if( useRCfisher || useChi2 ){
 
