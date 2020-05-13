@@ -598,6 +598,8 @@ void NetworkEnrichment::calculateSampleSpace( int muab, int a, int b, vector<tri
 
   relD = muab;
 
+  d.push_back( tripleInt(0, 0, 0) );
+  
   if( relD == 0 ){ return; }
 
   while( relD > 0 ){
@@ -906,6 +908,49 @@ double NetworkEnrichment::prob_overlap( int Nn, int na, int nb, int nab ){
   return result;
   
 }
+
+//extended Hypergeometric distribution.
+double NetworkEnrichment::prob_overlap( int Nn, int Cn, int Na, int na, int Nb, int nb, int Nab, int nab ){
+
+  double result, temp, num, dem;
+  
+  result = 0.0; num = 0.0; dem = 0.0; temp = 0.0;
+
+  num = 3*gsl_sf_lnfact( (const unsigned int)Cn ) +
+        3*gsl_sf_lnfact( (const unsigned int)(Nn-Cn) ) +
+          gsl_sf_lnfact( (const unsigned int)Nab ) +
+          gsl_sf_lnfact( (const unsigned int)(Nn-Nab) ) +
+          gsl_sf_lnfact( (const unsigned int)Na ) +
+          gsl_sf_lnfact( (const unsigned int)(Nn-Na) ) +
+          gsl_sf_lnfact( (const unsigned int)Nb ) +
+          gsl_sf_lnfact( (const unsigned int)(Nn-Nb) );
+ 
+  dem =  3*gsl_sf_lnfact( (const unsigned int)Nn ) +
+          gsl_sf_lnfact( (const unsigned int)nab ) +
+          gsl_sf_lnfact( (const unsigned int)(Cn-nab) ) +
+          gsl_sf_lnfact( (const unsigned int)na ) +
+          gsl_sf_lnfact( (const unsigned int)(Cn-na) ) +
+          gsl_sf_lnfact( (const unsigned int)nb ) +
+          gsl_sf_lnfact( (const unsigned int)(Cn-nb) ) +
+          gsl_sf_lnfact( (const unsigned int)(Nab-nab) )+
+          gsl_sf_lnfact( (const unsigned int)(Nn-Nab+nab-Cn) )+
+          gsl_sf_lnfact( (const unsigned int)(Na-na) )+
+          gsl_sf_lnfact( (const unsigned int)(Nn-Cn-Na+na) )+
+          gsl_sf_lnfact( (const unsigned int)(Nb-nb) )+
+          gsl_sf_lnfact( (const unsigned int)(Nn-Cn-Nb+nb) );
+ 
+  temp = num - dem;
+  
+  if( fabs(temp) > MAXEXPO ){
+    temp > 0 ? result = exp( MAXEXPO ) : result = exp( -MAXEXPO );
+  } else {  
+    result = exp( temp ) ;
+  }    
+  
+  return result;
+  
+}
+
 
 // Probability of overlap in network 'N' with three annotation sets: 'A', 'B' and 'C'.
 // Alex T. Kalinka, The probablility of drawing intersections: extending the hypergeometric distribution,
@@ -1820,52 +1865,19 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	  //product of annotation types A and B in community m
 	  nab[(k*M)+m] = tally_na * tally_nb;
 	
-	  if( (comSIZE[m] > MINOVERLAP[0] ) && (overlap[(a*Bs)+b] > MINOVERLAP[1]) && (tally > MINOVERLAP[2]) ){ 
+	  if( (comSIZE[m] > MINOVERLAP[0] ) && (overlap[(a*Bs)+b] > MINOVERLAP[1]) && (tally > MINOVERLAP[2]) ){ 	    
 
-	    /*
-	    // set sample size to calculate the test statistic, mu, against...
-	    // the 'standard' size using the union and sizes of A and B in the
-	    // network.
-	    maxMU = overlap[(a*Bs)+b];
-	    maxA  = A;
-	    maxB  = B;
-	  
-	    if( maxMU > comSIZE[m] ){ maxMU = comSIZE[m]; }	  
-	    if( maxA  > comSIZE[m] ){ maxA  = comSIZE[m]; }	  
-	    if( maxB  > comSIZE[m] ){ maxB  = comSIZE[m]; }
-	  
-	    // if useMaxSS set, we'll use the bigger of either the community size,
-	    // or the union of sizes A and B in the network.
-	    if( useMaxSS ){
-	  
-	      maxMU = comSIZE[m];
-	      maxA  = comSIZE[m];
-	      maxB  = comSIZE[m];
-	    
-	      if( overlap[(a*Bs)+b] > maxMU ){ maxMU = overlap[(a*Bs)+b]; }	    
-	      if( A > maxA )                 { maxA  = A;                 }
-	      if( B > maxB )                 { maxB  = B;                 }
-
-	    } 
-	    */	  
-	    
 	    vector<tripleInt> S;
-	    calculateSampleSpace( tally, tally_na, tally_nb, S );
-	    //----
+	    calculateSampleSpace( comSIZE[m], comSIZE[m], comSIZE[m], S );
 	    
-
 	    p_value   = 0;
 	    p_valueD  = 0;
-	    mu        = 0;
-	    prob_A    = prob_overlap( (int)N, (int)comSIZE[m], (int)A, (int)tally_na );
-	    prob_B    = prob_overlap( (int)N, (int)comSIZE[m], (int)B, (int)tally_nb );
-	    mu        = prob_overlap( (int)N, (int)comSIZE[m], (int)overlap[(a*Bs)+b], (int)tally );
-	    //mu       *= (prob_A * prob_B);
-	    mu        = mu * ((prob_A + prob_B)/2);
+	    mu        = 0;	   
+	    mu        = prob_overlap( (int)N, (int)comSIZE[m],
+				      (int)A, (int)tally_na,
+				      (int)B, (int)tally_nb,
+				      (int)overlap[(a*Bs+b)], (int)tally );
 
-	    
-	    	    
-	    
 	    if( calRelDist ){
 	      double prob_RD = 0.0;
 	      int    relDist = 0;
@@ -1875,33 +1887,24 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	      p_dist[(k*M)+m]  = prob_RD;
 	      reldist[(k*M)+m] = relDist;
 	    }
-	    
-	    for(i=0; i<S.size(); i++ ){
 
-	      //prob_A       = prob_overlap( (int)N, (int)comSIZE[m], (int)maxA,  (int)std::get<1>(S[i]) );
-	      //prob_B       = prob_overlap( (int)N, (int)comSIZE[m], (int)maxB,  (int)std::get<2>(S[i]) );
-	      //double prob  = prob_overlap( (int)N, (int)comSIZE[m], (int)maxMU, (int)std::get<0>(S[i]) );
-	      //prob *= (prob_A * prob_B);
+	    for(i=0; i<S.size(); i++ ){	    
+	      
+	      
+	      double prob =  prob_overlap( (int)N, (int)comSIZE[m],
+					   (int)A, (int)std::get<1>(S[i]),
+					   (int)B, (int)std::get<2>(S[i]),
+					   (int)overlap[(a*Bs+b)], (int)std::get<0>(S[i]));
 
-	      prob_A       = prob_overlap( (int)N, (int)comSIZE[m], (int)A,                 (int)std::get<1>(S[i]) );
-	      prob_B       = prob_overlap( (int)N, (int)comSIZE[m], (int)B,                 (int)std::get<2>(S[i]) );
-	      double prob  = prob_overlap( (int)N, (int)comSIZE[m], (int)overlap[(a*Bs)+b], (int)std::get<0>(S[i]) );	     
-	      //prob        *= (prob_A * prob_B);
-	      prob         = prob * ((prob_A + prob_B)/2);
 
-	      if( (int)std::get<0>(S[i])<=tally    &&
-		  (int)std::get<1>(S[i])<=tally_na &&
-		  (int)std::get<2>(S[i])<=tally_nb ){
+	    //Enrichment	
+	    if( prob <= mu ) p_value  += prob; 
 
-		//Enrichment	
-		if( prob <= mu ) p_value  += prob;
+	    //Depletion	
+	    if( prob >= mu ) p_valueD += prob; 
 
-		//Depletion	
-		if( prob >= mu ) p_valueD += prob;
-	      }
-		
 	    }
-	     	   
+	      
 	  
 	    //if useRCfisher or useChi2,
 	    if( useRCfisher || useChi2 ){

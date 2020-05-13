@@ -71,6 +71,7 @@ class NetworkEnrichment : buildSets {
   void overlapinNetork( int, int, int );
   void permutation( double );
   double prob_overlap( int, int, int, int );//Hypergeometric distribution
+  double prob_overlap( int, int, int, int, int, int, int, int );//Hypergeometric distribution
   double prob_overlap( int, int, int, int, int );//intersection between three sets
 
   void overlapinComsHypergeometricTestRnd(bool = true);
