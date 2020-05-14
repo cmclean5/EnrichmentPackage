@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "Run Overlap Cluster/Regions Enrichment Studies"
 
@@ -178,9 +178,9 @@ rEND=$(($rEND-1))
 #--- END
 
 #--- SET MIN OVERLAP and geneset size
-MINOV1=3
-MINOV2=3
-MINOV3=3
+MINOV1=5
+MINOV2=5
+MINOV3=5
 
 #--- ADD OFFSET test enrichment of non-Bridging proteins
 OFFSET="y"
@@ -232,7 +232,7 @@ do
 		    rm $tmpDIR/*.csv
 		    
 		    #---run overlap between two annotation files in community relative to network
-		    time ./$EXE -Comfile $COMDIR/${SUBDIR[$g]}/${comFILES[$k]} -Annofile $ANNODIR/${annoFILES[$KEYind]} -Annofile $ANNODIR/${annoFILES[$a]} -ext "${annoTITLES[$KEYind]}_${annoTITLES[$a]}" -o $tmpDIR -opt 2 -minOV $MINOV1 -minOV $MINOV2 -minOV $MINOV3 
+		    time ./$EXE -Comfile $COMDIR/${SUBDIR[$g]}/${comFILES[$k]} -Annofile $ANNODIR/${annoFILES[$KEYind]} -Annofile $ANNODIR/${annoFILES[$a]} -ext "${annoTITLES[$KEYind]}_${annoTITLES[$a]}" -o $tmpDIR -opt 2 -minOV $MINOV1 -minOV $MINOV2 -minOV $MINOV3 -Chi2 -twosided
 			
 		    #---Copy cluster enrichment results to output directory
 		    cp $WORKINGDIR/$tmpDIR/* $OUTDIR
@@ -244,7 +244,7 @@ do
 		    
 	    done
 	done
-
+	
 
 	#---loop over Regions
 	for k in `seq $rSTART $rEND`
@@ -274,9 +274,14 @@ do
 		    rm $tmpDIR/*.csv
 
 		    #---overlap between two annotation files in Bridging Region relative to network
-		    time ./$EXE -Comfile $REGDIR/${SUBDIR[$g]}/REGIONS/${regFILES[$k]} -Annofile $ANNODIR/${annoFILES[$KEYind]} -Annofile $ANNODIR/${annoFILES[$a]} -ext "${annoTITLES[$KEYind]}_${annoTITLES[$a]}" -o $tmpDIR -opt 2 -minOV $MINOV1 -minOV $MINOV2 -minOV $MINOV3 -offset $OFFSET
+		    time ./$EXE -Comfile $REGDIR/${SUBDIR[$g]}/REGIONS/${regFILES[$k]} -Annofile $ANNODIR/${annoFILES[$KEYind]} -Annofile $ANNODIR/${annoFILES[$a]} -ext "${annoTITLES[$KEYind]}_${annoTITLES[$a]}" -o $tmpDIR -opt 2 -minOV $MINOV1 -minOV $MINOV2 -minOV $MINOV3 -offset $OFFSET -Chi2 -twosided
 
-				
+		    #---regional enrichment for annotation set 1 
+		    time ./$EXE -Comfile $REGDIR/${SUBDIR[$g]}/REGIONS/${regFILES[$k]} -Annofile $ANNODIR/${annoFILES[$KEYind]} -ext ${annoTITLES[$KEYind]} -o $tmpDIR -opt 1 -setFDR BY -noPerm -printAn -onesided
+
+		    #---regional enrichment for annotation set 2 
+		    time ./$EXE -Comfile $REGDIR/${SUBDIR[$g]}/REGIONS/${regFILES[$k]} -Annofile $ANNODIR/${annoFILES[$a]} -ext ${annoTITLES[$a]} -o $tmpDIR -opt 1 -setFDR BY -noPerm -printAn -onesided
+		    
 		    #---Copy cluster enrichment results to output directory
 		    cp $WORKINGDIR/$tmpDIR/* $OUTDIR
 
@@ -287,7 +292,7 @@ do
 		    #if [[ "$KEYind" -ne "$a" ]]; then
 
 		    #---run overlap between annotation files at network level 
-		    time ./run -Comfile $REGDIR/${SUBDIR[$g]}/REGIONS/${regFILES[$k]} -Annofile $ANNODIR/${annoFILES[$KEYind]} -Annofile $ANNODIR/${annoFILES[$a]} -ext "${annoTITLES[$KEYind]}_${annoTITLES[$a]}" -o $tmpDIR -opt 3 -minOV $MINOV1 -minOV $MINOV2 -minOV $MINOV3 -setN "${annoTITLES[$KEYind]}" -setN "${annoTITLES[$a]}" -offset $OFFSET
+		    time ./run -Comfile $REGDIR/${SUBDIR[$g]}/REGIONS/${regFILES[$k]} -Annofile $ANNODIR/${annoFILES[$KEYind]} -Annofile $ANNODIR/${annoFILES[$a]} -ext "${annoTITLES[$KEYind]}_${annoTITLES[$a]}" -o $tmpDIR -opt 3 -minOV $MINOV1 -minOV $MINOV2 -minOV $MINOV3 -setN "${annoTITLES[$KEYind]}" -setN "${annoTITLES[$a]}" -offset $OFFSET 
 
 		    
 	    	    #---Copy cluster enrichment results to output directory

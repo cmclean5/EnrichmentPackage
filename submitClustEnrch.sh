@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+## NOTE:
+## Use  #!/bin/sh   on DICE
+## Use  #!/bin/bash on Ubuntu
+## --- :
 
 echo "Run Cluster Enrichment Studies"
 
@@ -137,7 +142,7 @@ kEND=${#comTITLES[@]}
 kEND=$(($kEND-1))
 #--- END
 
-MINov1=2
+MINov1=5
 
 #---loop over graphs
 for g in `seq $gSTART $gEND`
@@ -174,8 +179,11 @@ do
 		    rm $tmpDIR/*.csv 
 		    
 		    #---run cluster enrichment for annotation set
-		    time ./$EXE -Comfile $COMDIR/${SUBDIR[$g]}/${comFILES[$k]} -Annofile $ANNODIR/${annoFILES[$a]} -ext ${annoTITLES[$a]} -o $tmpDIR -opt 1 -setFDR BY -printID -noPerm -printAn -onesided
-		    #time ./$EXE -Comfile $COMDIR/${SUBDIR[$g]}/${comFILES[$k]} -Annofile $ANNODIR/${annoFILES[$a]} -ext ${annoTITLES[$a]} -o $tmpDIR -minOV ${MINov1} -opt 1 -setFDR BY
+		    ##for sigmoid code
+		    ##time ./$EXE -Comfile $COMDIR/${SUBDIR[$g]}/${comFILES[$k]} -Annofile $ANNODIR/${annoFILES[$a]} -ext ${annoTITLES[$a]} -o $tmpDIR -opt 1 -setFDR BY -printID -noPerm -printAn -onesided
+		    time ./$EXE -Comfile $COMDIR/${SUBDIR[$g]}/${comFILES[$k]} -Annofile $ANNODIR/${annoFILES[$a]} -ext ${annoTITLES[$a]} -o $tmpDIR -opt 1 -setFDR BY -noPerm -printID -printAn -onesided
+		    ##old
+		    ##time ./$EXE -Comfile $COMDIR/${SUBDIR[$g]}/${comFILES[$k]} -Annofile $ANNODIR/${annoFILES[$a]} -ext ${annoTITLES[$a]} -o $tmpDIR -minOV ${MINov1} -opt 1 -setFDR BY
 		    
 		    #---Copy cluster enrichment results to output directory
 		    cp $WORKINGDIR/$tmpDIR/*.csv $OUTDIR
