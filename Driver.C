@@ -375,9 +375,9 @@ void printHelpMessage( const char *arg1){
   cout << "-maxSS        :  When calculating the overlap between two anntation sets in communities, do we compare this against the 'maximum' sample space or 'standard' sample space." << endl;
   cout << "              : Default is to compare against 'standard' sample space." << endl;
   cout << "-RCfisher     : Calculating the exact Fisher test p.value on overlap between two anntation sets in communities, using R's RxC contingency table code." << endl;
-  cout << "              : Default is no to use this." << endl;
+  cout << "              : Default is not to use this." << endl;
   cout << "-Chi2         : Calculating the Chi2 test p.value on overlap between two anntation sets in communities, using the RxC contingency tables." << endl;
-  cout << "              : Default is no to use this." << endl;
+  cout << "              : Default is not to use this." << endl;
   /*cout << "-reldist      : calculate & print the relative distance between two annotation hypergeometric distributions. " << endl;
     cout << "              : Default is not to calculate & print the relative distance." << endl;*/
   cout << "-noPerm       : Don't calculate permutation on p.values. " << endl;
