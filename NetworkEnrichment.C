@@ -1918,14 +1918,17 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 				      (int)B, (int)tally_nb,
 				      (int)overlap[(a*Bs+b)], (int)tally );
 	    
-	    maxMU  = tally;
+	    
 	    if( printTwoSided ){
 	      maxMU  = (int)comSIZE[m];
-	      calculateSampleSpace( maxMU, maxMU, S );
+	      //calculateSampleSpace( maxMU, maxMU, S );
 	    } else {
-	      calculateSampleSpace( (int)tally_na, (int)tally_nb, S );
+	      maxMU  = (int)tally;
+	      //calculateSampleSpace( (int)tally_na, (int)tally_nb, S );
 	    }
 
+	    calculateSampleSpace( maxMU, maxMU, S );
+	    
 	    for( i=0; i<=maxMU; i++ ){
 
 	      if( (i <= tally) || (i >= (maxMU-tally)) ){
