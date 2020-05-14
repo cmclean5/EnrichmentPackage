@@ -592,31 +592,29 @@ void NetworkEnrichment::calculateInteractionDistance( int muab, int N, int Cn, i
 }
 
 // store all (a,b) pairs which give muab, from i=0 to i=muab. 
-void NetworkEnrichment::calculateSampleSpace( int muab, int a, int b, vector<tripleInt> &d ){
+void NetworkEnrichment::calculateSampleSpace( int a, int b, vector<pairIntInt> &d ){
   
   int i,j, relD;
 
-  relD = muab;
-
-  d.push_back( tripleInt(0, 0, 0) );
+  if( !d.empty() ){ d.clear(); }
   
-  if( relD == 0 ){ return; }
+  //if( relD == 0 ){ return(d); }
 
-  while( relD > 0 ){
+  //while( relD > 0 ){
   
     for(i=0; i<=a; i++){
       for(j=0; j<=b; j++){
 	//if( (i+j) == relD ){
-	  d.push_back( tripleInt(relD, i, j) );
-	  //d.push_back( tripleInt(relD, j, i) );
+	d.push_back( pairIntInt(i, j) );
+	//d.push_back( tripleInt(relD, j, i) );
 	  //}
       }
     }
 
-    relD--;
+    //relD--;
     
-  }    
-   
+    //}    
+
 }
 
 // The Odds Ratio (OR) and lower / upper 95% confidence interval for 2x2 contingency table
@@ -1835,8 +1833,11 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(){
 
 void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 
-  int i,k,m,a,b,As,Bs;
+  int i,j,k,m,a,b,As,Bs;
 
+  //vector<tripleInt> S;
+  vector<pairIntInt> S;
+  
   As = Fsize[indexA];
   Bs = Fsize[indexB];  
   
@@ -1896,15 +1897,15 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	
 	  if( (comSIZE[m] > MINOVERLAP[0] ) && (overlap[(a*Bs)+b] > MINOVERLAP[1]) && (tally > MINOVERLAP[2]) ){ 	    
 
-	    if( calRelDist ){
-	      double prob_RD = 0.0;
-	      int    relDist = 0;
-	    
-	      calculateInteractionDistance( (int)overlap[(a*Bs)+b], (int)N, (int)comSIZE[m], (int)A, (int)tally_na, (int)B, (int)tally_nb, relDist, prob_RD );
-	      	    
-	      p_dist[(k*M)+m]  = prob_RD;
-	      reldist[(k*M)+m] = relDist;
-	    }
+	    //if( calRelDist ){
+	    //  double prob_RD = 0.0;
+	    //  int    relDist = 0;
+	    //
+	    //  calculateInteractionDistance( (int)overlap[(a*Bs)+b], (int)N, (int)comSIZE[m], (int)A, (int)tally_na, (int)B, (int)tally_nb, relDist, prob_RD );
+	    //  	    
+	    //  p_dist[(k*M)+m]  = prob_RD;
+	    //  reldist[(k*M)+m] = relDist;
+	    //}
 
 	    
 	    p_value   = 0;
@@ -1916,56 +1917,56 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 				      (int)A, (int)tally_na,
 				      (int)B, (int)tally_nb,
 				      (int)overlap[(a*Bs+b)], (int)tally );
-
-	    maxMU = tally;
-	    vector<tripleInt> S;
+	    
+	    maxMU  = tally;
 	    if( printTwoSided ){
-	      maxMU = comSIZE[m];
-	      calculateSampleSpace( maxMU, maxMU, maxMU, S );
+	      maxMU  = (int)comSIZE[m];
+	      calculateSampleSpace( maxMU, maxMU, S );
 	    } else {
-	      calculateSampleSpace( tally, tally_na, tally_nb, S );
+	      calculateSampleSpace( (int)tally_na, (int)tally_nb, S );
 	    }
 
+	    for( i=0; i<=maxMU; i++ ){
 
-	    for(i=0; i<S.size(); i++ ){	    
-	      
-	      
-	      if( ( (int)std::get<0>(S[i]) <= tally) ||
-		  ( (int)std::get<0>(S[i]) >= (maxMU-tally) ) ){  
-	      
-		double prob =  prob_overlap( (int)N, (int)comSIZE[m],
-					     (int)A, (int)std::get<1>(S[i]),
-					     (int)B, (int)std::get<2>(S[i]),
-					     (int)overlap[(a*Bs+b)], (int)std::get<0>(S[i]));
+	      if( (i <= tally) || (i >= (maxMU-tally)) ){
 
+		for( j=0; j<S.size(); j++ ){ 
 		
-		//double SMALL=1.0e-100;
-		//if( prob <= SMALL ) prob = SMALL;
+		  int mu_ab = (int)i;
+		  int n_a   = (int)S[j].first;
+		  int n_b   = (int)S[j].second;
 
-		//Enrichment one-sided	
-		if( (prob <= mu) && ((int)std::get<0>(S[i]) <= tally) ){
-		  p_value  += prob;
-		}
+		  double prob =  prob_overlap( (int)N, (int)comSIZE[m],
+					       (int)A, n_a,
+					       (int)B, n_b,
+					       (int)overlap[(a*Bs+b)], mu_ab );
 
-		//Depletion one-sdied	
-		if( (prob >= mu) && ((int)std::get<0>(S[i]) <= tally) ){
-		  p_valueD += prob;
-		}
+		  //Enrichment one-sided	
+		  if( (prob <= mu) && (i <= tally) ){
+		    p_value  += prob;
+		  }
 
-		//Enrichment two-sided
-		if( (prob <= mu) ){
-		  p_valueT += prob;	      
-		}
+		  //Depletion one-sdied	
+		  if( (prob >= mu) && (i <= tally) ){
+		    p_valueD += prob;
+		  }
 
-		//Depletion two-sided
-		if( (prob >= mu) ){
-		  p_valueDT += prob;
-		}
-		
-	      }
-	    }
+		  //Enrichment two-sided
+		  if( (prob <= mu) ){
+		    p_valueT += prob;	      
+		  }
 
+		  //Depletion two-sided
+		  if( (prob >= mu) ){
+		    p_valueDT += prob;
+		  }
 
+		  
+		}//S
+	      }//
+	    }//i
+		  
+	    
 	    //if useRCfisher or useChi2,
 	    if( useRCfisher || useChi2 ){
 

@@ -54,7 +54,7 @@ class NetworkEnrichment : buildSets {
 
   void calculateInteractionDistance(int, int, int, int, int, int, int, int &, double &);
 
-  void calculateSampleSpace( int, int, int, vector<tripleInt> & );
+  void calculateSampleSpace( int, int, vector<pairIntInt> & );
   
   void calculateOddsRatio( double, double, double, double, double &, double &, double & );  
   
