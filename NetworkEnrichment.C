@@ -1595,7 +1595,7 @@ void NetworkEnrichment::overlapinComsHypergeometricTestRnd( bool runTest ){
 	  p_valueD  = 0;
 	  p_valueDT = 0;
 	  p_valueT  = 0;
-	  muMax     = (int)tally;//(int)Cn;
+	  muMax     = (int)tally;//min((int)Cn,(int)study_tally);
 	  mu        = 0;
 	  mu        = prob_overlap( (int)N, (int)Cn, (int)study_tally, (int)tally );
 	  
@@ -1758,7 +1758,7 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(){
 	p_valueDT = 0;
 	p_valueT  = 0;
 	mu        = 0;
-	muMax     = (int)tally;//(int)Cn;
+	muMax     = (int)tally;//min((int)Cn,(int)study_tally);
 	mu        = prob_overlap( (int)N, (int)Cn, (int)study_tally, (int)tally );
 
 	for(i=0; i<=muMax; i++ ){
@@ -1821,15 +1821,10 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(){
 	p_valuesT[(m*F)+f]  = (double)p_valueT;
       
       } else {
-
-	p_values[(m*F)+f]   = 1.0;
-	
+	p_values[(m*F)+f]   = 1.0;	
 	p_valuesD[(m*F)+f]  = 1.0;
-
 	p_valuesDT[(m*F)+f] = 1.0;
-
-	p_valuesT[(m*F)+f]  = 1.0;
-      
+	p_valuesT[(m*F)+f]  = 1.0;      
       }
 
   
