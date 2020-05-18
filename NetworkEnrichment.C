@@ -1595,44 +1595,48 @@ void NetworkEnrichment::overlapinComsHypergeometricTestRnd( bool runTest ){
 	  p_valueD  = 0;
 	  p_valueDT = 0;
 	  p_valueT  = 0;
-	  muMax     = (int)Cn;
+	  muMax     = (int)tally;//(int)Cn;
 	  mu        = 0;
 	  mu        = prob_overlap( (int)N, (int)Cn, (int)study_tally, (int)tally );
-
-	  //for(i=0; i<=(int)Cn; i++ ){
+	  
 	  for(i=0; i<=muMax; i++ ){
 
-	    if( (i <= tally) || i >= (muMax-tally) ){ 
+	    //if( (i <= tally) || i >= (muMax-tally) ){ 
 	    
-	      double prob = prob_overlap( (int)N, (int)Cn, (int)study_tally, (int)i );
+	    double prob = prob_overlap( (int)N, (int)Cn, (int)study_tally, (int)i );
 
-	      //Enrichment one-sided
-	      if( (prob <= mu) && (i <= tally) ){
-		p_value += prob;
-	      }
-
-	      //Depletion one-sided
-	      if( (prob >= mu) && (i <= tally) ){
-		p_valueD += prob;
-	      }
-	    
-	      //Enrichment two-sided
-	      if( (prob <= mu) ){
-		p_valueT += prob;	      
-	      }
-
-	      //Depletion two-sided
-	      if( (prob >= mu) ){
-		p_valueDT += prob;
-	      }
-
-
-	      //add two one-sided Depletion values
-	      //p_valueDT += p_valueD;
-	     
+	    //Enrichment one-sided
+	    if( (prob <= mu) ){//&& (i <= tally) ){
+	      p_value += prob;
 	    }
-	  }
 
+	    //Depletion one-sided
+	    if( (prob >= mu) ){//&& (i <= tally) ){
+	      p_valueD += prob;
+	    }
+
+	    /*
+	    //Enrichment two-sided
+	    if( (prob <= mu) ){
+	    p_valueT += prob;	      
+	    }
+
+	    //Depletion two-sided
+	    if( (prob >= mu) ){
+	    p_valueDT += prob;
+	    }
+	    */
+
+	    //}
+	  }
+      
+	  //Enrichment two-sided
+	  p_valueT  = 2 * p_value;
+	  
+	  //Depletion two-sided
+	  p_valueDT = 2 * p_valueD;
+	  	           
+      
 	  //---rounding error
 	  if( (p_value <= 0)   || (p_value > 1)   ) p_value  = 1.0;
 
@@ -1754,42 +1758,45 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(){
 	p_valueDT = 0;
 	p_valueT  = 0;
 	mu        = 0;
-	muMax     = (int)Cn;
+	muMax     = (int)tally;//(int)Cn;
 	mu        = prob_overlap( (int)N, (int)Cn, (int)study_tally, (int)tally );
 
-	 //for(i=0; i<=(int)Cn; i++ ){
-	  for(i=0; i<=muMax; i++ ){
+	for(i=0; i<=muMax; i++ ){
 
-	    if( (i <= tally) || i >= (muMax-tally) ){ 
+	  //if( (i <= tally) || i >= (muMax-tally) ){ 
 	    
-	      double prob = prob_overlap( (int)N, (int)Cn, (int)study_tally, (int)i );
+	  double prob = prob_overlap( (int)N, (int)Cn, (int)study_tally, (int)i );
 
-	      //Enrichment one-sided
-	      if( (prob <= mu) && (i <= tally) ){
-		p_value += prob;
-	      }
-
-	      //Depletion one-sided
-	      if( (prob >= mu) && (i <= tally) ){
-		p_valueD += prob;
-	      }
-	    
-	      //Enrichment two-sided
-	      if( (prob <= mu) ){
-		p_valueT += prob;	      
-	      }
-
-	      //Depletion two-sided
-	      if( (prob >= mu) ){
-		p_valueDT += prob;
-	      }
-
-	      //add two one-sided Depletion values
-	      //p_valueDT += p_valueD;
-       	      
-	    }
+	  //Enrichment one-sided
+	  if( (prob <= mu) ){//&& (i <= tally) ){
+	    p_value += prob;
 	  }
 
+	  //Depletion one-sided
+	  if( (prob >= mu) ){//&& (i <= tally) ){
+	    p_valueD += prob;
+	  }
+
+	  /*
+	  //Enrichment two-sided
+	  if( (prob <= mu) ){
+	    p_valueT += prob;	      
+	  }
+
+	  //Depletion two-sided
+	  if( (prob >= mu) ){
+	    p_valueDT += prob;
+	  }
+	  */	  
+       	      
+	  //}
+	}
+
+	//Enrichment two-sided
+	p_valueT  = 2 * p_value;
+
+	//Depletion two-sided
+	p_valueDT = 2 * p_valueD;
 	  
 	//---rounding error
 	if( (p_value <= 0)   || (p_value > 1)  ) p_value  = 1.0;
@@ -1919,8 +1926,13 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 				      (int)A, (int)tally_na,
 				      (int)B, (int)tally_nb,
 				      (int)overlap[(a*Bs+b)], (int)tally );
-	    
-	    
+
+	    maxMU  = (int)tally;
+	    calculateSampleSpace( (int)tally_na, (int)tally_nb, S );
+
+	    // For the moment let just stick with our two-sided p_values being
+	    // twice the one-sided p_value.
+	    /*
 	    if( printTwoSided ){
 	      
 	      if( (int)comSIZE[m] > (int)overlap[(a*Bs+b)] ){
@@ -1935,10 +1947,11 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	      maxMU  = (int)tally;
 	      calculateSampleSpace( (int)tally_na, (int)tally_nb, S );
 	    }
+	    */
 
 	    for( i=0; i<=maxMU; i++ ){
 
-	      if( (i <= tally) || (i >= (maxMU-tally)) ){
+	      //if( (i <= tally) || (i >= (maxMU-tally)) ){
 
 		for( j=0; j<S.size(); j++ ){ 
 		
@@ -1952,15 +1965,16 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 					       (int)overlap[(a*Bs+b)], mu_ab );
 
 		  //Enrichment one-sided	
-		  if( (prob <= mu) && (i <= tally) ){
+		  if( (prob <= mu) ){//&& (i <= tally) ){
 		    p_value  += prob;
 		  }
 
 		  //Depletion one-sdied	
-		  if( (prob >= mu) && (i <= tally) ){
+		  if( (prob >= mu) ){//&& (i <= tally) ){
 		    p_valueD += prob;
 		  }
 
+		  /*
 		  //Enrichment two-sided
 		  if( (prob <= mu) ){
 		    p_valueT += prob;	      
@@ -1970,12 +1984,18 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 		  if( (prob >= mu) ){
 		    p_valueDT += prob;
 		  }
-
+		  */
 		  
 		}//S
-	      }//
+		//}//
 	    }//i
-		  
+
+	    //Enrichment two-sided
+	    p_valueT  = 2 * p_value;
+
+	    //Depletion two-sided
+	    p_valueDT = 2 * p_valueD;
+	    
 	    
 	    //if useRCfisher or useChi2,
 	    if( useRCfisher || useChi2 ){
@@ -2117,20 +2137,21 @@ void NetworkEnrichment::overlapinNetHypergeometricTest(int indexA, int indexB){
 
       for(i=0; i<=MIN; i++){
 
-	if( (i <= overlap[(a*B)+b]) || (i >= (MIN-overlap[(a*B)+b])) ){
+	//if( (i <= overlap[(a*B)+b]) || (i >= (MIN-overlap[(a*B)+b])) ){
 	
 	  double prob = prob_overlap( (int)N, (int)ANNOS[indexA][a].K, (int)ANNOS[indexB][b].K, (int)i );
 
 	  //Enrichment one-sided
-	  if( (prob <= muab[(a*B)+b]) && (i <= overlap[(a*B)+b]) ){
+	  if( (prob <= muab[(a*B)+b]) ){//&& (i <= overlap[(a*B)+b]) ){
 	    p_value += prob;
 	  }
 
 	  //Depletion one-sided
-	  if( (prob >= muab[(a*B)+b]) && (i <= overlap[(a*B)+b]) ){
+	  if( (prob >= muab[(a*B)+b]) ){//&& (i <= overlap[(a*B)+b]) ){
 	    p_valueD += prob;
 	  }
 
+	  /*
 	  //Enrichment two-sided
 	  if( (prob <= muab[(a*B)+b]) ){
 	    p_valueT += prob;
@@ -2140,13 +2161,17 @@ void NetworkEnrichment::overlapinNetHypergeometricTest(int indexA, int indexB){
 	  if( (prob >= muab[(a*B)+b]) ){
 	    p_valueDT += prob;
 	  }
+	  */
 
-	  //add two one-sided Depletion values
-	  //p_valueDT += p_valueD;
-	  
-	}
+	  //}
       }
+      
+      //Enrichment two-sided
+      p_valueT  = 2 * p_value;
 
+      //Depletion two-sided
+      p_valueDT = 2 * p_valueD;
+      
     } else {
       p_value   = 1.0;
       p_valueD  = 1.0;
@@ -2232,20 +2257,21 @@ void NetworkEnrichment::overlapinNetHypergeometricTest(int indexA, int indexB, i
 
       for(i=0; i<=MIN; i++){
 
-	if( (i <= overlap[c+C*(b+B*a)]) || (i >= (MIN-overlap[c+C*(b+B*a)])) ){
+	//if( (i <= overlap[c+C*(b+B*a)]) || (i >= (MIN-overlap[c+C*(b+B*a)])) ){
 	
 	double prob = prob_overlap( (int)N, (int)ANNOS[indexA][a].K, (int)ANNOS[indexB][b].K, (int)ANNOS[indexC][c].K, (int)i );
 
 	//Enrichment one-sided
-	if( (prob <= muab[c+C*(b+B*a)]) && (i <= overlap[c+C*(b+B*a)]) ){
+	if( (prob <= muab[c+C*(b+B*a)]) ){//&& (i <= overlap[c+C*(b+B*a)]) ){
 	  p_value += prob;
 	}
 
 	//Depletion one-sided
-	if( (prob >= muab[c+C*(b+B*a)]) && (i <= overlap[c+C*(b+B*a)]) ){
+	if( (prob >= muab[c+C*(b+B*a)]) ){//&& (i <= overlap[c+C*(b+B*a)]) ){
 	  p_valueD += prob;
 	}
 
+	/*
 	//Enrichmnet two-sided
 	if( (prob <= muab[c+C*(b+B*a)]) ){
 	  p_valueT += prob;
@@ -2255,12 +2281,16 @@ void NetworkEnrichment::overlapinNetHypergeometricTest(int indexA, int indexB, i
 	if( (prob >= muab[c+C*(b+B*a)]) ){
 	  p_valueDT += prob;
 	}
+	*/
 
-	//add two one-sided Depletion values
-	//p_valueDT += p_valueD;
-	
-	}
+	//}
       }
+
+      //Enrichmnet two-sided
+      p_valueT  = 2 * p_value;
+
+      //Depletion two-sided
+      p_valueDT = 2 * p_valueD;
 
     } else {
       p_value   = 1.0;
