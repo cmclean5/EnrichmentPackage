@@ -1866,7 +1866,7 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	int tally        = 0;
 	int tally_na     = 0;
 	int tally_nb     = 0;
-	  
+
 	int maxMU        = 0;	
 	
 	  //--- loop over all genes in the mth cluster which shares the fth Disease type
@@ -1897,15 +1897,17 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	
 	  if( (comSIZE[m] > MINOVERLAP[0] ) && (overlap[(a*Bs)+b] > MINOVERLAP[1]) && (tally > MINOVERLAP[2]) ){ 	    
 
-	    //if( calRelDist ){
-	    //  double prob_RD = 0.0;
-	    //  int    relDist = 0;
-	    //
-	    //  calculateInteractionDistance( (int)overlap[(a*Bs)+b], (int)N, (int)comSIZE[m], (int)A, (int)tally_na, (int)B, (int)tally_nb, relDist, prob_RD );
-	    //  	    
-	    //  p_dist[(k*M)+m]  = prob_RD;
-	    //  reldist[(k*M)+m] = relDist;
-	    //}
+	    if( calRelDist ){
+	      double prob_RD = 0.0;
+	      int    relDist = 0;
+	    
+	      calculateInteractionDistance( (int)overlap[(a*Bs)+b], (int)N,
+					    (int)comSIZE[m], (int)A, (int)tally_na,
+					    (int)B, (int)tally_nb, relDist, prob_RD );
+	      	    
+	      p_dist[(k*M)+m]  = prob_RD;
+	      reldist[(k*M)+m] = relDist;
+	    }
 
 	    
 	    p_value   = 0;
@@ -1920,8 +1922,15 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	    
 	    
 	    if( printTwoSided ){
-	      maxMU  = (int)comSIZE[m];
-	      calculateSampleSpace( maxMU, maxMU, S );
+	      
+	      if( (int)comSIZE[m] > (int)overlap[(a*Bs+b)] ){
+		maxMU = (int)overlap[(a*Bs+b)];
+		calculateSampleSpace( (int)A, (int)B, S );
+	      } else {
+		maxMU  = (int)comSIZE[m];	
+		calculateSampleSpace( maxMU, maxMU, S );
+	      }
+	      
 	    } else {
 	      maxMU  = (int)tally;
 	      calculateSampleSpace( (int)tally_na, (int)tally_nb, S );
@@ -2025,16 +2034,11 @@ void NetworkEnrichment::overlapinComsHypergeometricTest(int indexA, int indexB){
 	     
 	  } else {
 	     
-	    p_values[(k*M)+m]    = 1.0;
-	    
+	    p_values[(k*M)+m]    = 1.0;	    
 	    p_valuesD[(k*M)+m]   = 1.0;
-
-	    p_valuesT[(k*M)+m]   = 1.0;
-	    
-	    p_valuesDT[(k*M)+m]  = 1.0;
-	       
+	    p_valuesT[(k*M)+m]   = 1.0;	    
+	    p_valuesDT[(k*M)+m]  = 1.0;	       
 	    p_exfisher[(k*M)+m]  = 1.0;
-
 	    p_chi2[(k*M)+m]      = 1.0;
 
 	  }
